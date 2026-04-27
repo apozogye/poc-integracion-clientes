@@ -10,8 +10,17 @@ public class ClienteRoute extends RouteBuilder {
     @Override
     public void configure() {
 
-        restConfiguration()
-            .component("servlet");
+        onException(Exception.class)
+            .handled(true)
+            .setHeader("Content-Type", constant("application/json"))
+            .setBody(simple("{\"estado\":\"ERROR\",\"mensaje\":\"${exception.message}\"}"));
+        
+         restConfiguration()
+            .component("servlet")
+            .enableCORS(true)
+            .corsHeaderProperty("Access-Control-Allow-Origin", "*")
+            .corsHeaderProperty("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+            .corsHeaderProperty("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin");
 
         rest("/clientes")
             .post("/enviar")
@@ -38,7 +47,7 @@ public class ClienteRoute extends RouteBuilder {
                 .otherwise()
                     .log("Perfil de compra no reconocido: ${body[perfilCompra]}")
                     .setHeader("Content-Type", constant("application/json"))
-                    .setBody(simple("{\"estado\":\"ERROR\",\"mensaje\":\"Perfil de compra no reconocido\"}"))
+                    .setBody(simple("{\"estado\":\"ERROR\",\"mensaje\":\"Perfil de compra no reconocido No envia a ninguna Empresa\"}"))
             .end();
 
         from("direct:empresa123")
@@ -54,7 +63,7 @@ public class ClienteRoute extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             .setHeader("Content-Type", constant("application/json"))
             .setHeader("CamelHttpMethod", constant("POST"))
-            .to("http://localhost:8082/api/clientes?throwExceptionOnFailure=false")
+            .to("http://localhost:8087/api/clientes?throwExceptionOnFailure=false")
             .log("Respuesta Empresa ABC: ${body}");
     }
 }

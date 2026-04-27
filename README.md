@@ -49,6 +49,9 @@ Desde la raiz del proyecto:
 mvn clean package
 ```
 
+mvn clean install
+
+
 ## Como ejecutar
 
 Opcion 1: ejecutar cada servicio en una terminal distinta.
