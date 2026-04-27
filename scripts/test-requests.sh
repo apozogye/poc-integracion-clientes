@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-BASE_URL="http://localhost:8080/api/clientes/enviar"
+BASE_URL="http://localhost:8089/api/clientes/enviar"
 
 echo "\nCaso 1: cliente DIGITAL, debe enviarse a Empresa 123"
 curl -s -X POST "$BASE_URL" \

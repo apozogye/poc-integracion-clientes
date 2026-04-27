@@ -21,7 +21,7 @@ PID_ABC=$!
 echo "Esperando servicios receptores..."
 sleep 5
 
-echo "Iniciando servicio de integracion en puerto 8080..."
+echo "Iniciando servicio de integracion en puerto 8089..."
 java -jar integration-service/target/integration-service-1.0.0.jar > "$LOG_DIR/integration.log" 2>&1 &
 PID_INTEGRATION=$!
 

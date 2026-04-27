@@ -22,7 +22,7 @@ La empresa XYZ ya tiene clientes perfilados en su CRM. Esta POC recibe clientes 
 poc-integracion-clientes/
 ├── pom.xml
 ├── integration-service/
-│   └── Servicio de integracion Apache Camel en puerto 8080
+│   └── Servicio de integracion Apache Camel en puerto 8089
 ├── empresa123-service/
 │   └── API simulada de Empresa 123 en puerto 8081
 ├── empresaabc-service/
@@ -93,7 +93,7 @@ Tambien se puede probar manualmente.
 ### Cliente digital
 
 ```bash
-curl -X POST http://localhost:8080/api/clientes/enviar \
+curl -X POST http://localhost:8089/api/clientes/enviar \
   -H "Content-Type: application/json" \
   -d '{
     "idCliente": "C001",
@@ -110,7 +110,7 @@ Resultado esperado: el cliente llega a Empresa 123.
 ### Cliente presencial
 
 ```bash
-curl -X POST http://localhost:8080/api/clientes/enviar \
+curl -X POST http://localhost:8089/api/clientes/enviar \
   -H "Content-Type: application/json" \
   -d '{
     "idCliente": "C002",
