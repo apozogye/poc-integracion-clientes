@@ -55,7 +55,7 @@ public class ClienteRoute extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             .setHeader("Content-Type", constant("application/json"))
             .setHeader("CamelHttpMethod", constant("POST"))
-            .to("http://localhost:8081/api/clientes?throwExceptionOnFailure=false")
+            .to("http://empresa123-service:8081/api/clientes?throwExceptionOnFailure=false")
             .log("Respuesta Empresa 123: ${body}");
 
         from("direct:empresaABC")
@@ -63,7 +63,7 @@ public class ClienteRoute extends RouteBuilder {
             .removeHeaders("CamelHttp*")
             .setHeader("Content-Type", constant("application/json"))
             .setHeader("CamelHttpMethod", constant("POST"))
-            .to("http://localhost:8087/api/clientes?throwExceptionOnFailure=false")
+            .to("http://empresaabc-service:8087/api/clientes?throwExceptionOnFailure=false")
             .log("Respuesta Empresa ABC: ${body}");
     }
 }

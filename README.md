@@ -1,13 +1,16 @@
 # POC Integracion de Clientes XYZ
 
-Prueba de concepto para simular el envio de clientes desde la empresa XYZ hacia las empresas 123 y ABC, usando una capa de integracion basada en Apache Camel.
+
+Autor: Alex Giovanny Pozo Pachar
+POC de simulación en envio de clientes desde la empresa XYZ hacia las empresas 123 y ABC, usando una capa de integracion basada en Apache Camel.
+
 
 ## Objetivo
 
 La empresa XYZ ya tiene clientes perfilados en su CRM. Esta POC recibe clientes en formato JSON y los enruta segun el canal de compra preferido:
 
-- `DIGITAL` -> Empresa 123
-- `PRESENCIAL` -> Empresa ABC
+- 'DIGITAL' -> Empresa 123
+- 'PRESENCIAL' -> Empresa ABC
 
 ## Framework y patron usados
 
@@ -18,7 +21,24 @@ La empresa XYZ ya tiene clientes perfilados en su CRM. Esta POC recibe clientes 
 
 ## Componentes del proyecto
 
-```text
+Se Agregan 4 contenedores para la simulacion
+1. `empresa123-service` en el puerto `8081`
+2. `empresaabc-service` en el puerto `8087`
+3. `integration-service` en el puerto `8089`
+4. `frontend-clientes` en el puerto `5173` local, servido internamente por Nginx en el puerto `80`
+
+## Patron Content-Based Router
+
+El patron Content-Based Router revisa el contenido del mensaje y decide a que endpoint enviarlo. En esta POC, la decision se toma con el campo `perfilCompra`.
+
+## Ventajas
+
+- XYZ no depende directamente de los sistemas internos de Empresa 123 ni Empresa ABC.
+- Se puede cambiar el destino sin modificar el CRM.
+- Se pueden agregar nuevos perfiles y nuevas empresas al consorcio.
+- El intercambio usa JSON, formato acordado entre las empresas.
+
+
 poc-integracion-clientes/
 ├── pom.xml
 ├── integration-service/
@@ -26,143 +46,68 @@ poc-integracion-clientes/
 ├── empresa123-service/
 │   └── API simulada de Empresa 123 en puerto 8081
 ├── empresaabc-service/
-│   └── API simulada de Empresa ABC en puerto 8082
-├── scripts/
-│   ├── run-all.sh
-│   └── test-requests.sh
-└── docs/
-    ├── arquitectura.md
-    └── ejemplos-json.md
-```
+│   └── API simulada de Empresa ABC en puerto 8087
+├── frontend-clientes/
+│   └── Captura de Datos para probar la API de envio despues de las validaciones  en el puerto 5173
+
 
 ## Requisitos
 
+Si se ejecuta independiente
 - Java 17 o superior
 - Maven 3.9 o superior
-- curl para ejecutar las pruebas desde consola
+- Postman par probar todas las APIs
+
+o para ejecutar con docker-compose
+- Docker desktop
 
 ## Como compilar
 
 Desde la raiz del proyecto:
 
-```bash
 mvn clean package
-```
-
 mvn clean install
+
 
 
 ## Como ejecutar
 
-Opcion 1: ejecutar cada servicio en una terminal distinta.
+Opcion 1
+Para crear automaticamente todo
+docker compose up
 
-Terminal 1:
 
-```bash
-java -jar empresa123-service/target/empresa123-service-1.0.0.jar
-```
 
-Terminal 2:
+Opcion 2: ejecutar cada servicio en una terminal distinta.
 
-```bash
-java -jar empresaabc-service/target/empresaabc-service-1.0.0.jar
-```
+Terminal 1:    java -jar empresa123-service/target/empresa123-service-1.0.0.jar
+Terminal 2:    java -jar empresaabc-service/target/empresaabc-service-1.0.0.jar
+Terminal 3:    java -jar integration-service/target/integration-service-1.0.0.jar
 
-Terminal 3:
-
-```bash
-java -jar integration-service/target/integration-service-1.0.0.jar
-```
-
-Opcion 2: ejecutar los tres servicios con el script:
-
-```bash
-chmod +x scripts/run-all.sh scripts/test-requests.sh
-./scripts/run-all.sh
-```
-
-El script crea archivos de log en la carpeta `logs/`.
 
 ## Como probar
 
 Con los servicios levantados, ejecutar:
+Postman o aplicacion Frontend
 
-```bash
-./scripts/test-requests.sh
-```
-
-Tambien se puede probar manualmente.
-
-### Cliente digital
-
-```bash
-curl -X POST http://localhost:8089/api/clientes/enviar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "idCliente": "C001",
-    "nombre": "Maria Lopez",
-    "email": "maria@correo.com",
-    "telefono": "0999999999",
-    "ciudad": "Quito",
-    "perfilCompra": "DIGITAL"
-  }'
-```
-
-Resultado esperado: el cliente llega a Empresa 123.
-
-### Cliente presencial
-
-```bash
-curl -X POST http://localhost:8089/api/clientes/enviar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "idCliente": "C002",
-    "nombre": "Carlos Perez",
-    "email": "carlos@correo.com",
-    "telefono": "0988888888",
-    "ciudad": "Guayaquil",
-    "perfilCompra": "PRESENCIAL"
-  }'
-```
-
-Resultado esperado: el cliente llega a Empresa ABC.
-
-### Cliente con perfil invalido
-
-```bash
-curl -X POST http://localhost:8080/api/clientes/enviar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "idCliente": "C003",
-    "nombre": "Ana Torres",
-    "email": "ana@correo.com",
-    "telefono": "0977777777",
-    "ciudad": "Cuenca",
-    "perfilCompra": "OTRO"
-  }'
-```
-
-Resultado esperado: error 400 indicando que el perfil no es reconocido.
 
 ## Endpoints
 
 | Servicio | URL | Descripcion |
-|---|---|---|
-| Integracion XYZ | `POST http://localhost:8080/api/clientes/enviar` | Recibe el cliente desde XYZ y decide el destino |
+| Integracion XYZ | `POST http://localhost:8089/api/clientes/enviar` | Recibe el cliente desde XYZ y decide el destino |
 | Empresa 123 | `POST http://localhost:8081/api/clientes` | Recibe clientes digitales |
-| Empresa ABC | `POST http://localhost:8082/api/clientes` | Recibe clientes presenciales |
+| Empresa ABC | `POST http://localhost:8087/api/clientes` | Recibe clientes presenciales |
 
 ## Regla de negocio
 
 La regla esta implementada en:
 
-```text
 integration-service/src/main/java/com/xyz/integration/routes/ClienteRouterRoute.java
-```
+
 
 La ruta Camel evalua el campo `perfilCompra` con JSONPath.
 
-```text
+
 $.perfilCompra == 'DIGITAL'     -> Empresa 123
 $.perfilCompra == 'PRESENCIAL' -> Empresa ABC
-```
+
